@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Noradrenalina</title>
+    <title>Calculadora de Infusões Contínuas</title>
     <style>
         * {
             box-sizing: border-box;
@@ -27,14 +27,49 @@
             max-width: 500px;
             padding: 20px;
         }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            font-size: 15px;
+            font-weight: bold;
+            color: #6c757d;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .tab-btn.active {
+            color: #0056b3;
+            border-bottom: 3px solid #0056b3;
+            margin-bottom: -2px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
         h1 {
             color: #0056b3;
             font-size: 22px;
             margin-top: 0;
-            margin-bottom: 15px;
+            margin-bottom: 5px;
             text-align: center;
-            border-bottom: 2px solid #eef2f7;
-            padding-bottom: 12px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #6c757d;
+            font-size: 13px;
+            margin-bottom: 15px;
         }
         .info-text {
             font-size: 12px;
@@ -45,6 +80,10 @@
             padding: 10px 12px;
             border-left: 4px solid #0056b3;
             border-radius: 4px;
+        }
+        .info-text.rocuronio {
+            background-color: #f4eefc;
+            border-left-color: #6f42c1;
         }
         .form-group {
             margin-bottom: 15px;
@@ -61,9 +100,9 @@
             align-items: center;
             width: 100%;
         }
-        input[type="number"] {
+        input[type="number"], select {
             flex: 1;
-            min-width: 0; /* Impede o input de quebrar o layout flex */
+            min-width: 0;
             padding: 10px 12px;
             border: 1px solid #ced4da;
             border-radius: 6px 0 0 6px;
@@ -71,7 +110,11 @@
             transition: border-color 0.15s ease-in-out;
             width: 100%;
         }
-        input[type="number"]:focus {
+        select {
+            border-radius: 6px;
+            background-color: white;
+        }
+        input[type="number"]:focus, select:focus {
             outline: none;
             border-color: #0056b3;
             box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.15);
@@ -85,9 +128,9 @@
             color: #495057;
             border-top-right-radius: 6px;
             border-bottom-right-radius: 6px;
-            width: 85px;
+            width: 95px;
             text-align: center;
-            flex-shrink: 0; /* Impede o sufixo de esmagar o input */
+            flex-shrink: 0;
         }
         .row {
             display: flex;
@@ -98,7 +141,6 @@
             min-width: 0;
         }
         
-        /* Ajuste responsivo para telas menores (como celulares) */
         @media (max-width: 400px) {
             .row {
                 flex-direction: column;
@@ -107,11 +149,17 @@
         }
 
         .interactive-section {
-            background-color: #f8f9fa;
             border: 1px solid #dee2e6;
             border-radius: 8px;
             padding: 15px;
             margin-top: 20px;
+        }
+        .interactive-section.nora {
+            background-color: #f8f9fa;
+        }
+        .interactive-section.roc {
+            background-color: #fbf9ff;
+            border-color: #e1d5f5;
         }
         .interactive-title {
             font-size: 14px;
@@ -148,164 +196,295 @@
 <body>
 
 <div class="container">
-    <h1>Cálculo de Noradrenalina</h1>
     
-    <div class="info-text">
-        Concentração padrão de referência para o cálculo: Ampola de 4mg em 4mL (1mg/mL).
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('nora-tab')">Noradrenalina</button>
+        <button class="tab-btn" onclick="switchTab('rocuronio-tab')">Rocurônio</button>
     </div>
 
-    <!-- Parâmetros Fixos/Configuração da Solução -->
-    <div class="row">
-        <div class="form-group">
-            <label for="ampolas">Nº de Ampolas</label>
-            <div class="input-group">
-                <input type="number" id="ampolas" value="1" step="any" min="0.1">
-                <span class="unit">amp(s)</span>
-            </div>
-        </div>
+    <div id="nora-tab" class="tab-content active">
+        <h1>Noradrenalina</h1>
+        <div class="subtitle">Infusão Contínua</div>
         
-        <div class="form-group">
-            <label for="peso">Peso do Paciente</label>
-            <div class="input-group">
-                <input type="number" id="peso" value="60" step="any" min="1">
-                <span class="unit">kg</span>
+        <div class="info-text">
+            Concentração padrão de referência para o cálculo: Ampola de 4mg em 4mL (1mg/mL).
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                <label for="ampolas">Nº de Ampolas</label>
+                <div class="input-group">
+                    <input type="number" id="ampolas" value="1" step="any" min="0.1" oninput="sincronizarBases('nora')">
+                    <span class="unit">amp(s)</span>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="peso">Peso do Paciente</label>
+                <div class="input-group">
+                    <input type="number" id="peso" value="60" step="any" min="1" oninput="sincronizarPeso('nora')">
+                    <span class="unit">kg</span>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="form-group">
-        <label for="volume">Volume Final da Solução</label>
-        <div class="input-group">
-            <input type="number" id="volume" value="250" step="any" min="1">
-            <span class="unit">mL</span>
+        <div class="form-group">
+            <label for="volume">Volume Final da Solução</label>
+            <div class="input-group">
+                <input type="number" id="volume" value="250" step="any" min="1" oninput="sincronizarBases('nora')">
+                <span class="unit">mL</span>
+            </div>
         </div>
+
+        <div class="interactive-section nora">
+            <div class="interactive-title">Cálculo Bidirecional (Dose ⇄ Vazão)</div>
+            
+            <div class="form-group">
+                <label for="vazao">Vazão (Bomba de Infusão)</label>
+                <div class="input-group">
+                    <input type="number" id="vazao" placeholder="Digite para calcular a dose..." step="any" min="0" oninput="calcularNora('vazao')">
+                    <span class="unit">mL/h</span>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="dose">Dose Administrada</label>
+                <div class="input-group">
+                    <input type="number" id="dose" placeholder="Digite para calcular a vazão..." step="any" min="0" oninput="calcularNora('dose')">
+                    <span class="unit">mcg/kg/min</span>
+                </div>
+            </div>
+        </div>
+        <button class="btn-clear" onclick="limparNora()">Limpar Calculadores</button>
     </div>
 
-    <!-- Seção Interativa Bidirecional -->
-    <div class="interactive-section">
-        <div class="interactive-title">Cálculo Bidirecional (Dose ⇄ Vazão)</div>
+    <div id="rocuronio-tab" class="tab-content">
+        <h1 style="color: #6f42c1;">Rocurônio</h1>
+        <div class="subtitle">Infusão Contínua</div>
         
-        <div class="form-group">
-            <label for="vazao">Vazão (Bomba de Infusão)</label>
-            <div class="input-group">
-                <input type="number" id="vazao" placeholder="Digite para calcular a dose..." step="any" min="0">
-                <span class="unit">mL/h</span>
+        <div class="info-text rocuronio">
+            Concentração de referência para o cálculo: Ampola de 50mg em 5mL (10mg/mL).
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                <label for="peso_roc">Peso do Paciente</label>
+                <div class="input-group">
+                    <input type="number" id="peso_roc" value="60" step="any" min="1" oninput="sincronizarPeso('roc')">
+                    <span class="unit">kg</span>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="modo_calculo">Definir Diluição por</label>
+                <select id="modo_calculo" onchange="alternarModoRoc()">
+                    <option value="volume">Vol. Final (mL)</option>
+                    <option value="concentracao">Conc. (mg/mL)</option>
+                </select>
             </div>
         </div>
 
-        <div class="form-group" style="margin-bottom: 0;">
-            <label for="dose">Dose Administrada</label>
-            <div class="input-group">
-                <input type="number" id="dose" placeholder="Digite para calcular a vazão..." step="any" min="0">
-                <span class="unit">mcg/kg/min</span>
+        <div class="row">
+            <div class="form-group">
+                <label for="ampolas_roc">Nº de Ampolas</label>
+                <div class="input-group">
+                    <input type="number" id="ampolas_roc" value="5" step="any" min="0.1" oninput="sincronizarBases('roc')">
+                    <span class="unit">amp(s)</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label id="lbl_dinamico" for="campo_dinamico">Volume Final</label>
+                <div class="input-group">
+                    <input type="number" id="campo_dinamico" value="250" step="any" min="0.01" oninput="sincronizarBases('roc')">
+                    <span class="unit" id="unit_dinamica">mL</span>
+                </div>
             </div>
         </div>
+
+        <div class="interactive-section roc">
+            <div class="interactive-title" style="color: #6f42c1;">Cálculo Bidirecional (Dose ⇄ Vazão)</div>
+            
+            <div class="form-group">
+                <label for="vazao_roc">Vazão (Bomba de Infusão)</label>
+                <div class="input-group">
+                    <input type="number" id="vazao_roc" placeholder="Digite para calcular a dose..." step="any" min="0" oninput="calcularRoc('vazao')">
+                    <span class="unit">mL/h</span>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="dose_roc">Dose Administrada</label>
+                <div class="input-group">
+                    <input type="number" id="dose_roc" placeholder="Digite para calcular a vazão..." step="any" min="0" oninput="calcularRoc('dose')">
+                    <span class="unit">mg/kg/h</span>
+                </div>
+            </div>
+        </div>
+        <button class="btn-clear" onclick="limparRoc()">Limpar Calculadores</button>
     </div>
-
-    <button class="btn-clear" onclick="limparCalculos()">Limpar Calculadores</button>
 
     <div class="footer">
-        Desenvolvido para fins educacionais e auxílio de cálculo. Sempre revise os valores antes da administração médica.
+        Desenvolvido para fins educacionais e auxílio de cálculo prático no plantão. Revise os valores antes da administração.
     </div>
 </div>
 
 <script>
-    const inputAmpolas = document.getElementById('ampolas');
     const inputPeso = document.getElementById('peso');
-    const inputVolume = document.getElementById('volume');
-    const inputVazao = document.getElementById('vazao');
-    const inputDose = document.getElementById('dose');
+    const inputPesoRoc = document.getElementById('peso_roc');
+    
+    const inputAmpolasNora = document.getElementById('ampolas');
+    const inputVolumeNora = document.getElementById('volume');
+    const inputVazaoNora = document.getElementById('vazao');
+    const inputDoseNora = document.getElementById('dose');
 
-    // Variável de controle para evitar loops infinitos de eventos de input
-    let mudandoOrigem = null;
+    const inputAmpolasRoc = document.getElementById('ampolas_roc');
+    const inputModoCalculo = document.getElementById('modo_calculo');
+    const labelDinamico = document.getElementById('lbl_dinamico');
+    const campoDinamico = document.getElementById('campo_dinamico');
+    const unitDinamica = document.getElementById('unit_dinamica');
+    const inputVazaoRoc = document.getElementById('vazao_roc');
+    const inputDoseRoc = document.getElementById('dose_roc');
 
-    // Adiciona ouvintes de evento para os inputs base para recalcular o valor ativo
-    [inputAmpolas, inputPeso, inputVolume].forEach(input => {
-        input.addEventListener('input', () => {
-            if (mudandoOrigem === 'vazao' || (!inputDose.value && inputVazao.value)) {
-                calcularDose();
-            } else if (mudandoOrigem === 'dose' || (!inputVazao.value && inputDose.value)) {
-                calcularVazao();
-            }
+    let mudandoOrigemNora = null;
+    let mudandoOrigemRoc = null;
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
         });
-    });
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
 
-    // Ouvinte para quando o usuário digita na VAZÃO (calcula DOSE)
-    inputVazao.addEventListener('input', () => {
-        mudandoOrigem = 'vazao';
-        calcularDose();
-    });
+    function sincronizarPeso(origem) {
+        if (origem === 'nora') {
+            inputPesoRoc.value = inputPeso.value;
+        } else {
+            inputPeso.value = inputPesoRoc.value;
+        }
+        sincronizarBases('nora');
+        sincronizarBases('roc');
+    }
 
-    // Ouvinte para quando o usuário digita na DOSE (calcula VAZÃO)
-    inputDose.addEventListener('input', () => {
-        mudandoOrigem = 'dose';
-        calcularVazao();
-    });
+    function alternarModoRoc() {
+        const modo = inputModoCalculo.value;
+        if (modo === 'volume') {
+            labelDinamico.innerText = 'Volume Final';
+            campoDinamico.value = '250';
+            unitDinamica.innerText = 'mL';
+        } else {
+            labelDinamico.innerText = 'Concentração';
+            campoDinamico.value = '1';
+            unitDinamica.innerText = 'mg/mL';
+        }
+        sincronizarBases('roc');
+    }
 
-    function obterVariaveisBase() {
-        const ampolas = parseFloat(inputAmpolas.value) || 0;
+    function sincronizarBases(fármaco) {
+        if (fármaco === 'nora') {
+            if (mudandoOrigemNora === 'vazao' || (!inputDoseNora.value && inputVazaoNora.value)) {
+                calcularNora('vazao');
+            } else if (mudandoOrigemNora === 'dose' || (!inputVazaoNora.value && inputDoseNora.value)) {
+                calcularNora('dose');
+            }
+        } else {
+            if (mudandoOrigemRoc === 'vazao' || (!inputDoseRoc.value && inputVazaoRoc.value)) {
+                calcularRoc('vazao');
+            } else if (mudandoOrigemRoc === 'dose' || (!inputVazaoRoc.value && inputDoseRoc.value)) {
+                calcularRoc('dose');
+            }
+        }
+    }
+
+    function obterConcentracaoNora() {
+        const ampolas = parseFloat(inputAmpolasNora.value) || 0;
+        const volume = parseFloat(inputVolumeNora.value) || 0;
+        const noraTotalMcg = ampolas * 4000;
+        return volume > 0 ? (noraTotalMcg / volume) : 0;
+    }
+
+    function calcularNora(campoAlterado) {
         const peso = parseFloat(inputPeso.value) || 0;
-        const volume = parseFloat(inputVolume.value) || 0;
-        
-        // Cada ampola de nora possui 4mg (4000 mcg)
-        const noraTotalMcg = ampolas * 4000; 
-        
-        // Concentração em mcg/mL
-        const concentracao = volume > 0 ? (noraTotalMcg / volume) : 0;
+        const concentracao = obterConcentracaoNora();
 
-        return { peso, concentracao };
+        if (peso <= 0 || concentracao <= 0) return;
+
+        if (campoAlterado === 'vazao') {
+            mudandoOrigemNora = 'vazao';
+            if (inputVazaoNora.value === '') {
+                inputDoseNora.value = '';
+                return;
+            }
+            const vazao = parseFloat(inputVazaoNora.value) || 0;
+            const dose = ((vazao * concentracao) / 60) / peso;
+            inputDoseNora.value = Number(dose.toFixed(4));
+        } else {
+            mudandoOrigemNora = 'dose';
+            if (inputDoseNora.value === '') {
+                inputVazaoNora.value = '';
+                return;
+            }
+            const dose = parseFloat(inputDoseNora.value) || 0;
+            const vazao = (dose * peso * 60) / concentracao;
+            inputVazaoNora.value = Number(vazao.toFixed(2));
+        }
     }
 
-    function calcularDose() {
-        if (inputVazao.value === '') {
-            inputDose.value = '';
-            return;
+    function obterConcentracaoRoc() {
+        const ampolas = parseFloat(inputAmpolasRoc.value) || 0;
+        const modo = inputModoCalculo.value;
+        const valorDinamico = parseFloat(campoDinamico.value) || 0;
+
+        if (modo === 'concentracao') {
+            return valorDinamico;
+        } else {
+            const rocuronioTotalMg = ampolas * 50;
+            return valorDinamico > 0 ? (rocuronioTotalMg / valorDinamico) : 0;
         }
-
-        const vazao = parseFloat(inputVazao.value) || 0;
-        const { peso, concentracao } = obterVariaveisBase();
-
-        if (peso <= 0 || concentracao <= 0 || vazao <= 0) {
-            inputDose.value = '0';
-            return;
-        }
-
-        // 1. mcg/h = vazao (mL/h) * concentracao (mcg/mL)
-        // 2. mcg/min = (vazao * concentracao) / 60
-        // 3. mcg/kg/min = ((vazao * concentracao) / 60) / peso
-        const dose = ((vazao * concentracao) / 60) / peso;
-        
-        // Exibe com 4 casas decimais para melhor precisão em doses pequenas
-        inputDose.value = Number(dose.toFixed(4));
     }
 
-    function calcularVazao() {
-        if (inputDose.value === '') {
-            inputVazao.value = '';
-            return;
+    function calcularRoc(campoAlterado) {
+        const peso = parseFloat(inputPesoRoc.value) || 0;
+        const concentracao = obterConcentracaoRoc();
+
+        if (peso <= 0 || concentracao <= 0) return;
+
+        if (campoAlterado === 'vazao') {
+            mudandoOrigemRoc = 'vazao';
+            if (inputVazaoRoc.value === '') {
+                inputDoseRoc.value = '';
+                return;
+            }
+            const vazao = parseFloat(inputVazaoRoc.value) || 0;
+            const dose = (vazao * concentracao) / peso;
+            inputDoseRoc.value = Number(dose.toFixed(4));
+        } else {
+            mudandoOrigemRoc = 'dose';
+            if (inputDoseRoc.value === '') {
+                inputVazaoRoc.value = '';
+                return;
+            }
+            const dose = parseFloat(inputDoseRoc.value) || 0;
+            const vazao = (dose * peso) / concentracao;
+            inputVazaoRoc.value = Number(vazao.toFixed(2));
         }
-
-        const dose = parseFloat(inputDose.value) || 0;
-        const { peso, concentracao } = obterVariaveisBase();
-
-        if (peso <= 0 || concentracao <= 0 || dose <= 0) {
-            inputVazao.value = '0';
-            return;
-        }
-
-        // 1. mcg/min = dose (mcg/kg/min) * peso (kg)
-        // 2. mcg/h = dose * peso * 60
-        // 3. vazao (mL/h) = (dose * peso * 60) / concentracao
-        const vazao = (dose * peso * 60) / concentracao;
-        
-        // Exibe com 2 casas decimais
-        inputVazao.value = Number(vazao.toFixed(2));
     }
 
-    function limparCalculos() {
-        inputVazao.value = '';
-        inputDose.value = '';
-        mudandoOrigem = null;
+    function limparNora() {
+        inputVazaoNora.value = '';
+        inputDoseNora.value = '';
+        mudandoOrigemNora = null;
+    }
+
+    function limparRoc() {
+        inputVazaoRoc.value = '';
+        inputDoseRoc.value = '';
+        mudandoOrigemRoc = null;
     }
 </script>
 
