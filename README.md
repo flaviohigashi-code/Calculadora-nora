@@ -1,1 +1,1 @@
-Calculadora noradrenalina 
+Calculadora noradrenalina e rocuronio
